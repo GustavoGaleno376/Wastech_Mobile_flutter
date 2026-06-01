@@ -15,43 +15,73 @@ class FireHomeScreen extends StatelessWidget {
       length: 4,
       child: Column(
         children: [
-          Container(
-            margin: const EdgeInsets.fromLTRB(20, 8, 20, 0),
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              color: const Color(0xFFB91C1C).withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: TabBar(
-              isScrollable: false,
-              labelPadding: EdgeInsets.zero,
-              indicator: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(11),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.06),
-                    blurRadius: 4,
-                    offset: const Offset(0, 1),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+            child: Container(
+              padding: const EdgeInsets.all(5),
+              decoration: BoxDecoration(
+                color: const Color(0xFFB91C1C).withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: const Color(0xFFB91C1C).withValues(alpha: 0.1),
+                ),
+              ),
+              child: TabBar(
+                isScrollable: false,
+                labelPadding: EdgeInsets.zero,
+                indicator: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.08),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                dividerColor: Colors.transparent,
+                labelColor: const Color(0xFFB91C1C),
+                unselectedLabelColor: AppColors.textSecondary,
+                labelStyle: GoogleFonts.inter(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 12,
+                ),
+                unselectedLabelStyle: GoogleFonts.inter(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 12,
+                ),
+                tabs: [
+                  Tab(
+                    child: _TabContent(
+                      icon: Icons.map_rounded,
+                      label: 'Mapa',
+                      isSelected: false,
+                    ),
+                  ),
+                  Tab(
+                    child: _TabContent(
+                      icon: Icons.notifications_rounded,
+                      label: 'Alertas',
+                      isSelected: false,
+                    ),
+                  ),
+                  Tab(
+                    child: _TabContent(
+                      icon: Icons.insights_rounded,
+                      label: 'FIRMS',
+                      isSelected: false,
+                    ),
+                  ),
+                  Tab(
+                    child: _TabContent(
+                      icon: Icons.assignment_rounded,
+                      label: 'Ação',
+                      isSelected: false,
+                    ),
                   ),
                 ],
               ),
-              labelColor: const Color(0xFFB91C1C),
-              unselectedLabelColor: AppColors.textSecondary,
-              labelStyle: GoogleFonts.inter(
-                fontWeight: FontWeight.w600,
-                fontSize: 11,
-              ),
-              unselectedLabelStyle: GoogleFonts.inter(
-                fontWeight: FontWeight.w500,
-                fontSize: 11,
-              ),
-              tabs: const [
-                Tab(text: 'Mapa'),
-                Tab(text: 'Alertas'),
-                Tab(text: 'FIRMS'),
-                Tab(text: 'Ação'),
-              ],
             ),
           ),
           const Expanded(
@@ -67,6 +97,33 @@ class FireHomeScreen extends StatelessWidget {
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TabContent extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool isSelected;
+
+  const _TabContent({
+    required this.icon,
+    required this.label,
+    required this.isSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: 16),
+          const SizedBox(width: 6),
+          Text(label),
         ],
       ),
     );
