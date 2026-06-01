@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import '../theme/app_theme.dart';
-import '../widgets/section_title_widget.dart';
-import '../widgets/hero_banner_widget.dart';
-import '../widgets/tool_card_widget.dart';
-import '../widgets/plant_card_widget.dart';
-import '../widgets/water_calculator_card.dart';
-import '../widgets/fire_monitoring_card.dart';
+import 'app_theme.dart';
+import 'section_title_widget.dart';
+import 'hero_banner_widget.dart';
+import 'tool_card_widget.dart';
+import 'plant_card_widget.dart';
+import 'water_calculator_card.dart';
+import 'fire_monitoring_card.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});

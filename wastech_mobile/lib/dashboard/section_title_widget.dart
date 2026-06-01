@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../theme/app_theme.dart';
+import 'app_theme.dart';
 
 class SectionTitleWidget extends StatelessWidget {
   final String title;

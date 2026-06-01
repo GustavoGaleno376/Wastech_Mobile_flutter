@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'theme/app_theme.dart';
-import 'screens/dashboard_screen.dart';
+import 'dashboard/app_theme.dart';
+import 'dashboard/dashboard_screen.dart';
 
 void main() {
   runApp(const WastechApp());
