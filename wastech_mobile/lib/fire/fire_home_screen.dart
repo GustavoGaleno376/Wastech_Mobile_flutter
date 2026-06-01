@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../dashboard/app_theme.dart';
 import 'heatmap_tab.dart';
 import 'alert_center_tab.dart';
-import 'firms_tab.dart';
+import 'charts_tab.dart';
 import 'action_plan_tab.dart';
 
 class FireHomeScreen extends StatelessWidget {
@@ -68,8 +68,8 @@ class FireHomeScreen extends StatelessWidget {
                   ),
                   Tab(
                     child: _TabContent(
-                      icon: Icons.insights_rounded,
-                      label: 'FIRMS',
+                      icon: Icons.bar_chart_rounded,
+                      label: 'Gráficos',
                       isSelected: false,
                     ),
                   ),
@@ -91,7 +91,7 @@ class FireHomeScreen extends StatelessWidget {
                 children: [
                   HeatmapTab(),
                   AlertCenterTab(),
-                  FirmsTab(),
+                  ChartsTab(),
                   ActionPlanTab(),
                 ],
               ),
