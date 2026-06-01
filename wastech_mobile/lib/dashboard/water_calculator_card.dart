@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'app_theme.dart';
 
 class WaterCalculatorCard extends StatelessWidget {
@@ -6,6 +7,7 @@ class WaterCalculatorCard extends StatelessWidget {
   final String title;
   final String subtitle;
   final Color color;
+  final Color bgColor;
   final VoidCallback? onTap;
 
   const WaterCalculatorCard({
@@ -14,6 +16,7 @@ class WaterCalculatorCard extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.color,
+    required this.bgColor,
     this.onTap,
   });
 
@@ -22,37 +25,38 @@ class WaterCalculatorCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Card(
-        elevation: 1,
+        elevation: 0,
         shadowColor: Colors.black.withValues(alpha: 0.06),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(18),
         ),
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(18),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
+                  color: bgColor,
                   shape: BoxShape.circle,
                 ),
-                child: Icon(icon, color: color, size: 22),
+                child: Icon(icon, color: color, size: 24),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
               Text(
                 title,
-                style: const TextStyle(
-                  fontSize: 15,
+                style: GoogleFonts.inter(
+                  fontSize: 16,
                   fontWeight: FontWeight.w700,
                   color: AppColors.textPrimary,
+                  height: 1.2,
                 ),
               ),
-              const SizedBox(height: 2),
+              const SizedBox(height: 4),
               Text(
                 subtitle,
-                style: const TextStyle(
+                style: GoogleFonts.inter(
                   fontSize: 11,
                   color: AppColors.textSecondary,
                 ),

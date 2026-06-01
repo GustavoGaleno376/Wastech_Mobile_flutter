@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'app_theme.dart';
 import 'section_title_widget.dart';
 import 'hero_banner_widget.dart';
@@ -20,13 +21,60 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _buildAppBar(),
+      appBar: AppBar(
+        leading: const Padding(
+          padding: EdgeInsets.only(left: 12),
+          child: CircleAvatar(
+            radius: 18,
+            backgroundColor: AppColors.primary,
+            child: Text(
+              'G',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+              ),
+            ),
+          ),
+        ),
+        title: const Text('Wastech'),
+        actions: [
+          Stack(
+            children: [
+              IconButton(
+                onPressed: () {},
+                icon: const Icon(Icons.notifications_outlined,
+                    color: AppColors.textPrimary),
+              ),
+              Positioned(
+                right: 10,
+                top: 10,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: const BoxDecoration(
+                    color: AppColors.red,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Text(
+                    '1',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 9,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(width: 4),
+        ],
+      ),
       body: const SingleChildScrollView(
         padding: EdgeInsets.symmetric(horizontal: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 8),
             _GreetingSection(),
             SizedBox(height: 20),
             HeroBannerWidget(),
@@ -42,89 +90,45 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: _buildBottomNav(),
-    );
-  }
-
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      title: const Row(
-        children: [
-          Text(
-            'Wastech',
-            style: TextStyle(
-              fontWeight: FontWeight.w700,
-              fontSize: 20,
-              color: AppColors.primary,
-            ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) => setState(() => _currentIndex = index),
+        selectedItemColor: AppColors.primary,
+        unselectedItemColor: AppColors.textSecondary,
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.white,
+        elevation: 8,
+        selectedLabelStyle: GoogleFonts.inter(
+          fontWeight: FontWeight.w600,
+          fontSize: 11,
+        ),
+        unselectedLabelStyle: GoogleFonts.inter(
+          fontWeight: FontWeight.w500,
+          fontSize: 11,
+        ),
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.dashboard_rounded),
+            activeIcon: Icon(Icons.dashboard_rounded),
+            label: 'Dashboard',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.build_outlined),
+            activeIcon: Icon(Icons.build_rounded),
+            label: 'Ferramentas',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.yard_outlined),
+            activeIcon: Icon(Icons.yard_rounded),
+            label: 'Minhas Plantas',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.local_fire_department_outlined),
+            activeIcon: Icon(Icons.local_fire_department_rounded),
+            label: 'Incêndios',
           ),
         ],
       ),
-      actions: [
-        Stack(
-          children: [
-            IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.notifications_outlined,
-                  color: AppColors.textPrimary),
-            ),
-            Positioned(
-              right: 8,
-              top: 8,
-              child: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: const BoxDecoration(
-                  color: AppColors.red,
-                  shape: BoxShape.circle,
-                ),
-                child: const Text(
-                  '1',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 9,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-        const Padding(
-          padding: EdgeInsets.only(right: 4),
-          child: CircleAvatar(
-            radius: 16,
-            backgroundColor: AppColors.primaryLight,
-            child: Text(
-              'G',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-                fontSize: 14,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  BottomNavigationBar _buildBottomNav() {
-    return BottomNavigationBar(
-      currentIndex: _currentIndex,
-      onTap: (index) => setState(() => _currentIndex = index),
-      items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: 'Início'),
-        BottomNavigationBarItem(
-            icon: Icon(Icons.build_rounded), label: 'Ferramentas'),
-        BottomNavigationBarItem(
-            icon: Icon(Icons.yard_rounded), label: 'Plantas'),
-        BottomNavigationBarItem(
-            icon: Icon(Icons.water_drop_rounded), label: 'Irrigação'),
-        BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline_rounded), label: 'Perfil'),
-      ],
     );
   }
 }
@@ -137,20 +141,22 @@ class _GreetingSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        const SizedBox(height: 4),
+        Text(
           'Olá, Gustavo',
-          style: TextStyle(
-            fontSize: 24,
+          style: GoogleFonts.inter(
+            fontSize: 26,
             fontWeight: FontWeight.w700,
             color: AppColors.textPrimary,
           ),
         ),
-        const SizedBox(height: 2),
+        const SizedBox(height: 4),
         Text(
           'Vamos cuidar das suas plantações hoje?',
-          style: TextStyle(
+          style: GoogleFonts.inter(
             fontSize: 14,
-            color: AppColors.textSecondary.withValues(alpha: 0.8),
+            color: AppColors.textSecondary,
+            height: 1.4,
           ),
         ),
       ],
@@ -166,52 +172,52 @@ class _ToolsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SectionTitleWidget(title: 'Ferramentas Agrícolas'),
-        SizedBox(
-          height: 140,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            children: [
-              ToolCardWidget(
+        const SectionTitleWidget(
+          title: 'Ferramentas Agrícolas',
+          actionLabel: 'Ver todas',
+        ),
+        const Row(
+          children: [
+            Expanded(
+              child: ToolCardWidget(
                 icon: Icons.calendar_month_rounded,
                 label: 'Épocas de plantio',
                 iconColor: AppColors.primary,
+                bgColor: AppColors.greenLight,
               ),
-              const SizedBox(width: 12),
-              ToolCardWidget(
+            ),
+            SizedBox(width: 12),
+            Expanded(
+              child: ToolCardWidget(
                 icon: Icons.cloud_rounded,
                 label: 'Previsão do tempo',
                 iconColor: AppColors.blue,
+                bgColor: AppColors.blueLight,
               ),
-              const SizedBox(width: 12),
-              ToolCardWidget(
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        const Row(
+          children: [
+            Expanded(
+              child: ToolCardWidget(
                 icon: Icons.calculate_rounded,
                 label: 'Irrigação',
                 iconColor: AppColors.orange,
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 12),
-        SizedBox(
-          width: double.infinity,
-          height: 44,
-          child: OutlinedButton(
-            onPressed: () {},
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: AppColors.primary),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                bgColor: AppColors.orangeLight,
               ),
             ),
-            child: const Text(
-              'Acessar Todas as Ferramentas',
-              style: TextStyle(
-                color: AppColors.primary,
-                fontWeight: FontWeight.w600,
+            SizedBox(width: 12),
+            Expanded(
+              child: ToolCardWidget(
+                icon: Icons.energy_savings_leaf_rounded,
+                label: 'Análise do Solo',
+                iconColor: AppColors.brown,
+                bgColor: AppColors.brownLight,
               ),
             ),
-          ),
+          ],
         ),
       ],
     );
@@ -227,9 +233,7 @@ class _PlantsSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SectionTitleWidget(title: 'Minhas Plantas'),
-        PlantCardWidget(
-          onAdd: () {},
-        ),
+        PlantCardWidget(onAdd: () {}),
       ],
     );
   }
@@ -252,6 +256,7 @@ class _WaterCalculatorsSection extends StatelessWidget {
                 title: 'ETo',
                 subtitle: 'Evapotranspiração',
                 color: AppColors.blue,
+                bgColor: AppColors.blueLight,
               ),
             ),
             SizedBox(width: 12),
@@ -261,6 +266,7 @@ class _WaterCalculatorsSection extends StatelessWidget {
                 title: 'ETc',
                 subtitle: 'Demanda da planta',
                 color: AppColors.primary,
+                bgColor: AppColors.greenLight,
               ),
             ),
             SizedBox(width: 12),
@@ -270,6 +276,7 @@ class _WaterCalculatorsSection extends StatelessWidget {
                 title: 'Kc',
                 subtitle: 'Coeficientes',
                 color: AppColors.purple,
+                bgColor: AppColors.purpleLight,
               ),
             ),
           ],
@@ -292,25 +299,24 @@ class _FireMonitoringSection extends StatelessWidget {
           icon: Icons.local_fire_department_rounded,
           iconColor: AppColors.red,
         ),
-        const FireMonitoringCard(
-          icon: Icons.map_rounded,
-          title: 'Mapa de Calor',
-          subtitle: 'Risco em tempo real',
-          accentColor: AppColors.orange,
-        ),
-        const SizedBox(height: 10),
+        const FireHeroCard(),
+        const SizedBox(height: 12),
         const FireMonitoringCard(
           icon: Icons.notifications_active_rounded,
           title: 'Alertas',
-          subtitle: 'Notificações de proximidade',
+          subtitle: '2 alertas ativos na sua região',
           accentColor: AppColors.red,
+          bgColor: AppColors.redLight,
+          riskValue: 0.72,
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 12),
         const FireMonitoringCard(
           icon: Icons.satellite_alt_rounded,
           title: 'Dados NASA',
-          subtitle: 'Informações de satélite',
+          subtitle: 'Atualizado há 15 minutos',
           accentColor: AppColors.blue,
+          bgColor: AppColors.blueLight,
+          riskValue: 0.30,
         ),
       ],
     );

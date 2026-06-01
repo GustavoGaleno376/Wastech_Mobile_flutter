@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'app_theme.dart';
 
 class HeroBannerWidget extends StatelessWidget {
@@ -14,12 +15,12 @@ class HeroBannerWidget extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
             color: AppColors.primary.withValues(alpha: 0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
@@ -30,22 +31,22 @@ class HeroBannerWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.stars_rounded, color: Colors.white, size: 16),
-                    SizedBox(width: 6),
+                    const SizedBox(width: 6),
                     Text(
-                      'Nv. 1',
-                      style: TextStyle(
+                      'Nv. 1 Agricultor',
+                      style: GoogleFonts.inter(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
-                        fontSize: 13,
+                        fontSize: 12,
                       ),
                     ),
                   ],
@@ -64,27 +65,33 @@ class HeroBannerWidget extends StatelessWidget {
           const SizedBox(height: 24),
           Row(
             children: [
-              Expanded(
-                child: _StatItem(
-                  icon: Icons.eco_rounded,
-                  value: '0',
-                  label: 'Plantas ativas',
-                ),
-              ),
+              Expanded(child: _StatItem(value: '0', label: 'Plantas ativas')),
               Container(
                 width: 1,
-                height: 40,
-                color: Colors.white.withValues(alpha: 0.3),
-                margin: const EdgeInsets.symmetric(horizontal: 8),
+                height: 45,
+                color: Colors.white.withValues(alpha: 0.25),
               ),
-              Expanded(
-                child: _StatItem(
-                  icon: Icons.task_alt_rounded,
-                  value: '0',
-                  label: 'Tarefas hoje',
-                ),
-              ),
+              Expanded(child: _StatItem(value: '0', label: 'Tarefas hoje')),
             ],
+          ),
+          const SizedBox(height: 20),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: LinearProgressIndicator(
+              value: 0.35,
+              backgroundColor: Colors.white.withValues(alpha: 0.25),
+              valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+              minHeight: 6,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            '35% da safra concluída',
+            style: GoogleFonts.inter(
+              color: Colors.white.withValues(alpha: 0.8),
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       ),
@@ -93,35 +100,28 @@ class HeroBannerWidget extends StatelessWidget {
 }
 
 class _StatItem extends StatelessWidget {
-  final IconData icon;
   final String value;
   final String label;
 
-  const _StatItem({
-    required this.icon,
-    required this.value,
-    required this.label,
-  });
+  const _StatItem({required this.value, required this.label});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Icon(icon, color: Colors.white, size: 24),
-        const SizedBox(height: 8),
         Text(
           value,
-          style: const TextStyle(
+          style: GoogleFonts.inter(
             color: Colors.white,
-            fontSize: 24,
+            fontSize: 28,
             fontWeight: FontWeight.w700,
             height: 1,
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 6),
         Text(
           label,
-          style: TextStyle(
+          style: GoogleFonts.inter(
             color: Colors.white.withValues(alpha: 0.85),
             fontSize: 12,
             fontWeight: FontWeight.w500,
