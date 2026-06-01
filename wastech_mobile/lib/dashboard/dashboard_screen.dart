@@ -7,6 +7,7 @@ import 'tool_card_widget.dart';
 import 'plant_card_widget.dart';
 import 'water_calculator_card.dart';
 import 'fire_monitoring_card.dart';
+import '../fire/fire_home_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -20,76 +21,124 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isFireTab = _currentIndex == 3;
+
     return Scaffold(
-      appBar: AppBar(
-        leading: const Padding(
-          padding: EdgeInsets.only(left: 12),
-          child: CircleAvatar(
-            radius: 18,
-            backgroundColor: AppColors.primary,
-            child: Text(
-              'G',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-                fontSize: 16,
+      appBar: isFireTab
+          ? AppBar(
+              leading: const Padding(
+                padding: EdgeInsets.only(left: 12),
+                child: CircleAvatar(
+                  radius: 18,
+                  backgroundColor: Color(0xFFB91C1C),
+                  child: Icon(Icons.local_fire_department_rounded,
+                      color: Colors.white, size: 18),
+                ),
               ),
-            ),
-          ),
-        ),
-        title: const Text('Wastech'),
-        actions: [
-          Stack(
-            children: [
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(Icons.notifications_outlined,
-                    color: AppColors.textPrimary),
-              ),
-              Positioned(
-                right: 10,
-                top: 10,
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: const BoxDecoration(
-                    color: AppColors.red,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Text(
-                    '1',
+              title: const Text('Fire Watch'),
+              actions: [
+                Stack(
+                  children: [
+                    IconButton(
+                      onPressed: () {},
+                      icon: const Icon(Icons.notifications_outlined,
+                          color: AppColors.textPrimary),
+                    ),
+                    Positioned(
+                      right: 10,
+                      top: 10,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFB91C1C),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Text(
+                          '3',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 4),
+              ],
+            )
+          : AppBar(
+              leading: const Padding(
+                padding: EdgeInsets.only(left: 12),
+                child: CircleAvatar(
+                  radius: 18,
+                  backgroundColor: AppColors.primary,
+                  child: Text(
+                    'G',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 9,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
                     ),
                   ),
                 ),
               ),
-            ],
-          ),
-          const SizedBox(width: 4),
-        ],
-      ),
-      body: const SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _GreetingSection(),
-            SizedBox(height: 20),
-            HeroBannerWidget(),
-            SizedBox(height: 28),
-            _ToolsSection(),
-            SizedBox(height: 28),
-            _PlantsSection(),
-            SizedBox(height: 28),
-            _WaterCalculatorsSection(),
-            SizedBox(height: 28),
-            _FireMonitoringSection(),
-            SizedBox(height: 24),
-          ],
-        ),
-      ),
+              title: const Text('Wastech'),
+              actions: [
+                Stack(
+                  children: [
+                    IconButton(
+                      onPressed: () {},
+                      icon: const Icon(Icons.notifications_outlined,
+                          color: AppColors.textPrimary),
+                    ),
+                    Positioned(
+                      right: 10,
+                      top: 10,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: AppColors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Text(
+                          '1',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 4),
+              ],
+            ),
+      body: isFireTab
+          ? const FireHomeScreen()
+          : const SingleChildScrollView(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _GreetingSection(),
+                  SizedBox(height: 20),
+                  HeroBannerWidget(),
+                  SizedBox(height: 28),
+                  _ToolsSection(),
+                  SizedBox(height: 28),
+                  _PlantsSection(),
+                  SizedBox(height: 28),
+                  _WaterCalculatorsSection(),
+                  SizedBox(height: 28),
+                  _FireMonitoringSection(),
+                  SizedBox(height: 24),
+                ],
+              ),
+            ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),
