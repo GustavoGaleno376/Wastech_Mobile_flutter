@@ -141,7 +141,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
+        onTap: (index) {
+          if (index == 1) {
+            Navigator.pushNamed(context, '/eto');
+            return;
+          }
+          setState(() => _currentIndex = index);
+        },
         selectedItemColor: AppColors.primary,
         unselectedItemColor: AppColors.textSecondary,
         type: BottomNavigationBarType.fixed,
