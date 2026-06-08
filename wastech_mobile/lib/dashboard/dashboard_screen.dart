@@ -247,7 +247,7 @@ class _ToolsSection extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 12),
-        const Row(
+        Row(
           children: [
             Expanded(
               child: ToolCardWidget(
@@ -255,10 +255,11 @@ class _ToolsSection extends StatelessWidget {
                 label: 'Irrigação',
                 iconColor: AppColors.orange,
                 bgColor: AppColors.orangeLight,
+                onTap: () => Navigator.pushNamed(context, '/eto'),
               ),
             ),
-            SizedBox(width: 12),
-            Expanded(
+            const SizedBox(width: 12),
+            const Expanded(
               child: ToolCardWidget(
                 icon: Icons.energy_savings_leaf_rounded,
                 label: 'Análise do Solo',
@@ -297,7 +298,7 @@ class _WaterCalculatorsSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SectionTitleWidget(title: 'Calculadoras de Água'),
-        const Row(
+        Row(
           children: [
             Expanded(
               child: WaterCalculatorCard(
@@ -306,9 +307,10 @@ class _WaterCalculatorsSection extends StatelessWidget {
                 subtitle: 'Evapotranspiração',
                 color: AppColors.blue,
                 bgColor: AppColors.blueLight,
+                onTap: () => Navigator.pushNamed(context, '/eto'),
               ),
             ),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
             Expanded(
               child: WaterCalculatorCard(
                 icon: Icons.eco_rounded,
@@ -316,9 +318,10 @@ class _WaterCalculatorsSection extends StatelessWidget {
                 subtitle: 'Demanda da planta',
                 color: AppColors.primary,
                 bgColor: AppColors.greenLight,
+                onTap: () => Navigator.pushNamed(context, '/etc'),
               ),
             ),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
             Expanded(
               child: WaterCalculatorCard(
                 icon: Icons.science_rounded,
@@ -326,6 +329,7 @@ class _WaterCalculatorsSection extends StatelessWidget {
                 subtitle: 'Coeficientes',
                 color: AppColors.purple,
                 bgColor: AppColors.purpleLight,
+                onTap: () => Navigator.pushNamed(context, '/kc'),
               ),
             ),
           ],

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'screens/Login Screen/login_screen.dart';
 import 'dashboard/app_theme.dart';
-import 'dashboard/dashboard_screen.dart';
+import 'screens/Login Screen/login_screen.dart';
+import 'calculos_irrigacao/eto.dart';
+import 'calculos_irrigacao/etc.dart';
+import 'calculos_irrigacao/ko.dart';
 
 void main() {
   runApp(const WastechApp());
@@ -16,7 +18,12 @@ class WastechApp extends StatelessWidget {
       title: 'Wastech',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      home: const DashboardScreen(),
+      home: const LoginScreen(),
+      routes: {
+        '/eto': (_) => const ETOPage(),
+        '/etc': (_) => const ETCCPage(),
+        '/kc': (_) => KoPage(),
+      },
     );
   }
 }
