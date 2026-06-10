@@ -8,6 +8,8 @@ import 'plant_card_widget.dart';
 import 'water_calculator_card.dart';
 import 'fire_monitoring_card.dart';
 import '../fire/fire_home_screen.dart';
+import '../screens/mapa_screen.dart';
+import '../screens/ferramentas_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -21,133 +23,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isFireTab = _currentIndex == 3;
-
     return Scaffold(
-      appBar: isFireTab
-          ? AppBar(
-              leading: const Padding(
-                padding: EdgeInsets.only(left: 12),
-                child: CircleAvatar(
-                  radius: 18,
-                  backgroundColor: Color(0xFFB91C1C),
-                  child: Icon(Icons.local_fire_department_rounded,
-                      color: Colors.white, size: 18),
-                ),
-              ),
-              title: const Text('Fire Watch'),
-              actions: [
-                Stack(
-                  children: [
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.notifications_outlined,
-                          color: AppColors.textPrimary),
-                    ),
-                    Positioned(
-                      right: 10,
-                      top: 10,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(
-                          color: Color(0xFFB91C1C),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Text(
-                          '3',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 9,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(width: 4),
-              ],
-            )
-          : AppBar(
-              leading: const Padding(
-                padding: EdgeInsets.only(left: 12),
-                child: CircleAvatar(
-                  radius: 18,
-                  backgroundColor: AppColors.primary,
-                  child: Text(
-                    'G',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-              ),
-              title: const Text('Wastech'),
-              actions: [
-                Stack(
-                  children: [
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.notifications_outlined,
-                          color: AppColors.textPrimary),
-                    ),
-                    Positioned(
-                      right: 10,
-                      top: 10,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(
-                          color: AppColors.red,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Text(
-                          '1',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 9,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(width: 4),
-              ],
-            ),
-      body: isFireTab
-          ? const FireHomeScreen()
-          : const SingleChildScrollView(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _GreetingSection(),
-                  SizedBox(height: 20),
-                  HeroBannerWidget(),
-                  SizedBox(height: 28),
-                  _ToolsSection(),
-                  SizedBox(height: 28),
-                  _PlantsSection(),
-                  SizedBox(height: 28),
-                  _WaterCalculatorsSection(),
-                  SizedBox(height: 28),
-                  _FireMonitoringSection(),
-                  SizedBox(height: 24),
-                ],
-              ),
-            ),
+      appBar: _buildAppBar(),
+      body: _buildBody(),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: (index) {
-          if (index == 1) {
-            Navigator.pushNamed(context, '/eto');
-            return;
-          }
-          setState(() => _currentIndex = index);
-        },
+        onTap: (index) => setState(() => _currentIndex = index),
         selectedItemColor: AppColors.primary,
         unselectedItemColor: AppColors.textSecondary,
         type: BottomNavigationBarType.fixed,
@@ -168,14 +49,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
             label: 'Dashboard',
           ),
           BottomNavigationBarItem(
+            icon: Icon(Icons.map_outlined),
+            activeIcon: Icon(Icons.map_rounded),
+            label: 'Mapa',
+          ),
+          BottomNavigationBarItem(
             icon: Icon(Icons.build_outlined),
             activeIcon: Icon(Icons.build_rounded),
             label: 'Ferramentas',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.yard_outlined),
-            activeIcon: Icon(Icons.yard_rounded),
-            label: 'Minhas Plantas',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.local_fire_department_outlined),
@@ -185,6 +66,150 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ],
       ),
     );
+  }
+
+  PreferredSizeWidget _buildAppBar() {
+    switch (_currentIndex) {
+      case 1:
+        return AppBar(
+          title: const Text('Mapa Climático'),
+          centerTitle: true,
+        );
+      case 2:
+        return AppBar(
+          title: const Text('Ferramentas'),
+          centerTitle: true,
+        );
+      case 3:
+        return AppBar(
+          leading: const Padding(
+            padding: EdgeInsets.only(left: 12),
+            child: CircleAvatar(
+              radius: 18,
+              backgroundColor: Color(0xFFB91C1C),
+              child: Icon(Icons.local_fire_department_rounded,
+                  color: Colors.white, size: 18),
+            ),
+          ),
+          title: const Text('Fire Watch'),
+          actions: [
+            Stack(
+              children: [
+                IconButton(
+                  onPressed: () {},
+                  icon: const Icon(Icons.notifications_outlined,
+                      color: AppColors.textPrimary),
+                ),
+                Positioned(
+                  right: 10,
+                  top: 10,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFB91C1C),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Text(
+                      '3',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 9,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(width: 4),
+          ],
+        );
+      default:
+        return AppBar(
+          leading: const Padding(
+            padding: EdgeInsets.only(left: 12),
+            child: CircleAvatar(
+              radius: 18,
+              backgroundColor: AppColors.primary,
+              child: Text(
+                'G',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+          ),
+          title: const Text('Wastech'),
+          actions: [
+            Stack(
+              children: [
+                IconButton(
+                  onPressed: () {},
+                  icon: const Icon(Icons.notifications_outlined,
+                      color: AppColors.textPrimary),
+                ),
+                Positioned(
+                  right: 10,
+                  top: 10,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      color: AppColors.red,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Text(
+                      '1',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 9,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(width: 4),
+          ],
+        );
+    }
+  }
+
+  Widget _buildBody() {
+    switch (_currentIndex) {
+      case 1:
+        return const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          child: MapaScreen(),
+        );
+      case 2:
+        return const FerramentasScreen();
+      case 3:
+        return const FireHomeScreen();
+      default:
+        return const SingleChildScrollView(
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _GreetingSection(),
+              SizedBox(height: 20),
+              HeroBannerWidget(),
+              SizedBox(height: 28),
+              _ToolsSection(),
+              SizedBox(height: 28),
+              _PlantsSection(),
+              SizedBox(height: 28),
+              _WaterCalculatorsSection(),
+              SizedBox(height: 28),
+              _FireMonitoringSection(),
+              SizedBox(height: 24),
+            ],
+          ),
+        );
+    }
   }
 }
 

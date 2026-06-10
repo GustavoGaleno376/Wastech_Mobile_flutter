@@ -4,6 +4,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 import 'package:google_fonts/google_fonts.dart';
 import '../dashboard/app_theme.dart';
+import '../services/mock_climate_service.dart';
 
 class EToCalculator {
   static double calculateExtraterrestrialRadiation(double latitude, int dayOfYear) {
@@ -49,6 +50,9 @@ class _ETOPageState extends State<ETOPage> {
   double _latitude = -3.717;
   double _longitude = -38.543;
   double _resultadoETo = 0.0;
+  final _climateService = MockClimateService();
+  ClimateData? _climateData;
+  bool _climateLoading = false;
 
   void _executarCalculo() {
     final double? tMin = double.tryParse(_tMinController.text);
@@ -120,10 +124,19 @@ class _ETOPageState extends State<ETOPage> {
                           options: MapOptions(
                             initialCenter: LatLng(_latitude, _longitude),
                             initialZoom: 5.0,
-                            onTap: (tapPosition, point) {
+                            onTap: (tapPosition, point) async {
                               setState(() {
                                 _latitude = point.latitude;
                                 _longitude = point.longitude;
+                                _climateLoading = true;
+                              });
+                              final data = await _climateService
+                                  .getClimateDataForEto(
+                                      point.latitude, point.longitude);
+                              if (!mounted) return;
+                              setState(() {
+                                _climateData = data;
+                                _climateLoading = false;
                               });
                             },
                           ),
@@ -161,6 +174,46 @@ class _ETOPageState extends State<ETOPage> {
                         ),
                       ],
                     ),
+                    if (_climateLoading)
+                      const Padding(
+                        padding: EdgeInsets.only(top: 12),
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: 14,
+                              height: 14,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                            SizedBox(width: 8),
+                            Text('Buscando dados climáticos...'),
+                          ],
+                        ),
+                      ),
+                    if (_climateData != null && !_climateLoading) ...[
+                      const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppColors.blueLight,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            _ClimateInfo(
+                                icon: Icons.thermostat_rounded,
+                                label: 'Temp',
+                                value: '${_climateData!.temperature}°C',
+                                color: AppColors.orange),
+                            const SizedBox(width: 16),
+                            _ClimateInfo(
+                                icon: Icons.water_drop_rounded,
+                                label: 'Umidade',
+                                value: '${_climateData!.humidity}%',
+                                color: AppColors.blue),
+                          ],
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -339,6 +392,52 @@ class _ETOPageState extends State<ETOPage> {
             ],
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _ClimateInfo extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final Color color;
+
+  const _ClimateInfo({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: color),
+          const SizedBox(width: 6),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: GoogleFonts.inter(
+                  fontSize: 10,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              Text(
+                value,
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: color,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

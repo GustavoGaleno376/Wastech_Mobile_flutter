@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../dashboard/app_theme.dart';
 import '../../dashboard/dashboard_screen.dart';
-import '../Register Screen/register_screen.dart';
+import '../register/register_screen.dart';
 import '../../services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {

@@ -30,8 +30,8 @@ class Cultura {
   });
 }
 
-class KoPage extends StatelessWidget {
-  KoPage({super.key});
+class KcPage extends StatelessWidget {
+  KcPage({super.key});
 
   final List<Cultura> listaCulturas = [
     Cultura(
