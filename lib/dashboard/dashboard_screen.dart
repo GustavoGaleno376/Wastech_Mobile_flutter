@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'app_theme.dart';
 import 'section_title_widget.dart';
 import 'hero_banner_widget.dart';
@@ -11,7 +10,7 @@ import 'fire_monitoring_card.dart';
 import '../fire/fire_home_screen.dart';
 import '../screens/mapa_screen.dart';
 import '../screens/ferramentas_screen.dart';
-import '../services/auth_service.dart';
+import 'plant_service.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -22,7 +21,6 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   int _currentIndex = 0;
-  final _authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +70,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _confirmLogout() async {
-    final bool? confirm = await showDialog<bool>(
+    showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -84,32 +82,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const Text('Confirmar Saída'),
             ],
           ),
-          content: const Text('Tem certeza que deseja sair da sua conta?'),
+          content: const Text('Modo offline/desenvolvimento ativo.'),
           actions: <Widget>[
             TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: Text(
-                'Cancelar',
-                style: TextStyle(color: AppColors.textSecondary),
-              ),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              style: FilledButton.styleFrom(
-                backgroundColor: AppColors.red,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: const Text('Sair'),
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('Fechar', style: TextStyle(color: AppColors.textSecondary)),
             ),
           ],
         );
       },
     );
-    if (confirm == true) {
-      await _authService.logout();
-    }
   }
 
   Widget _logoutAction() {
@@ -141,99 +123,60 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: CircleAvatar(
               radius: 18,
               backgroundColor: Color(0xFFB91C1C),
-              child: Icon(Icons.local_fire_department_rounded,
-                  color: Colors.white, size: 18),
+              child: Icon(Icons.local_fire_department_rounded, color: Colors.white, size: 18),
             ),
           ),
           title: const Text('Fire Watch'),
           actions: [
             _logoutAction(),
-            Stack(
-              children: [
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.notifications_outlined,
-                      color: AppColors.textPrimary),
-                ),
-                Positioned(
-                  right: 10,
-                  top: 10,
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFB91C1C),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Text(
-                      '3',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 9,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            _buildNotificationBadge('3'),
             const SizedBox(width: 4),
           ],
         );
       default:
         return AppBar(
-          leading: Padding(
+          leading: const Padding(
             padding: EdgeInsets.only(left: 12),
             child: CircleAvatar(
               radius: 18,
               backgroundColor: AppColors.primary,
               child: Text(
-                (FirebaseAuth.instance.currentUser != null && FirebaseAuth.instance.currentUser!.displayName != null)
-                    ? FirebaseAuth.instance.currentUser!.displayName![0].toUpperCase()
-                    : '?', // Fallback para '?' se o nome não estiver disponível
-
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
-                ),
+                'D',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16),
               ),
             ),
           ),
           title: const Text('Wastech'),
           actions: [
             _logoutAction(),
-            Stack(
-              children: [
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.notifications_outlined,
-                      color: AppColors.textPrimary),
-                ),
-                Positioned(
-                  right: 10,
-                  top: 10,
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: const BoxDecoration(
-                      color: AppColors.red,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Text(
-                      '1',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 9,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            _buildNotificationBadge('1'),
             const SizedBox(width: 4),
           ],
         );
     }
+  }
+
+  Widget _buildNotificationBadge(String count) {
+    return Stack(
+      children: [
+        IconButton(
+          onPressed: () {},
+          icon: const Icon(Icons.notifications_outlined, color: AppColors.textPrimary),
+        ),
+        Positioned(
+          right: 10,
+          top: 10,
+          child: Container(
+            padding: const EdgeInsets.all(4),
+            decoration: const BoxDecoration(color: AppColors.red, shape: BoxShape.circle),
+            child: Text(
+              count,
+              style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w700),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildBody() {
@@ -277,8 +220,7 @@ class _GreetingSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
-    final name = user?.displayName?.split(' ').first ?? 'Usuário';
+    const String name = 'Desenvolvedor';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -367,8 +309,89 @@ class _ToolsSection extends StatelessWidget {
   }
 }
 
-class _PlantsSection extends StatelessWidget {
+// --- SEÇÃO INTERATIVA CONFIGURADA COM O SERVIÇO (CRUD) ---
+class _PlantsSection extends StatefulWidget {
   const _PlantsSection();
+
+  @override
+  State<_PlantsSection> createState() => _PlantsSectionState();
+}
+
+class _PlantsSectionState extends State<_PlantsSection> {
+  final PlantService _plantService = PlantService();
+  
+  final TextEditingController _nomeController = TextEditingController();
+  final TextEditingController _tipoController = TextEditingController();
+
+  void _abrirFormularioPlanta({Planta? plantaExistente}) {
+    if (plantaExistente != null) {
+      _nomeController.text = plantaExistente.nome;
+      _tipoController.text = plantaExistente.tipo;
+    } else {
+      _nomeController.clear();
+      _tipoController.clear();
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text(plantaExistente == null ? '🌿 Adicionar Nova Planta' : '✏️ Editar Planta'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _nomeController,
+                decoration: const InputDecoration(labelText: 'Nome da Planta', hintText: 'Ex: Café'),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _tipoController,
+                decoration: const InputDecoration(labelText: 'Tipo / Categoria', hintText: 'Ex: Perene'),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancelar'),
+            ),
+            FilledButton(
+              onPressed: () async {
+                if (_nomeController.text.trim().isEmpty) return;
+                
+                if (plantaExistente == null) {
+                  await _plantService.adicionarPlanta(
+                    _nomeController.text,
+                    _tipoController.text.isEmpty ? 'Geral' : _tipoController.text,
+                  );
+                } else {
+                  await _plantService.editarPlanta(
+                    plantaExistente.id,
+                    _nomeController.text,
+                    _tipoController.text,
+                  );
+                }
+
+                if (mounted) {
+                  setState(() {});
+                  Navigator.pop(context);
+                }
+              },
+              style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
+              child: const Text('Salvar'),
+            )
+          ],
+        );
+      },
+    );
+  }
+
+  void _removerPlanta(String id) async {
+    await _plantService.removerPlanta(id);
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -376,7 +399,81 @@ class _PlantsSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SectionTitleWidget(title: 'Minhas Plantas'),
-        PlantCardWidget(onAdd: () {}),
+        const SizedBox(height: 8),
+        
+        FutureBuilder<List<Planta>>(
+          future: _plantService.obterPlantas(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: CircularProgressIndicator(color: AppColors.primary),
+                ),
+              );
+            }
+
+            final plantas = snapshot.data ?? [];
+
+            if (plantas.isEmpty) {
+              return Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Center(
+                  child: Text(
+                    'Nenhuma planta cadastrada. Adicione sua primeira!', 
+                    style: TextStyle(color: Colors.grey, fontSize: 13),
+                  ),
+                ),
+              );
+            }
+
+            return ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: plantas.length,
+              itemBuilder: (context, index) {
+                final planta = plantas[index];
+                return Card(
+                  elevation: 0,
+                  margin: const EdgeInsets.only(bottom: 8),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(color: Colors.grey.withOpacity(0.2)),
+                  ),
+                  child: ListTile(
+                    leading: const CircleAvatar(
+                      backgroundColor: AppColors.greenLight,
+                      child: Icon(Icons.eco_rounded, color: AppColors.primary),
+                    ),
+                    title: Text(planta.nome, style: const TextStyle(fontWeight: FontWeight.bold)),
+                    subtitle: Text(planta.tipo),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.edit_outlined, color: Colors.blue),
+                          onPressed: () => _abrirFormularioPlanta(plantaExistente: planta),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete_outline_rounded, color: AppColors.red),
+                          onPressed: () => _removerPlanta(planta.id),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        ),
+          
+        const SizedBox(height: 12),
+        PlantCardWidget(onAdd: () => _abrirFormularioPlanta()),
       ],
     );
   }
@@ -437,17 +534,17 @@ class _FireMonitoringSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return const Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SectionTitleWidget(
+        SectionTitleWidget(
           title: 'Monitoramento de Incêndios',
           icon: Icons.local_fire_department_rounded,
           iconColor: AppColors.red,
         ),
-        const FireHeroCard(),
-        const SizedBox(height: 12),
-        const FireMonitoringCard(
+        FireHeroCard(),
+        SizedBox(height: 12),
+        FireMonitoringCard(
           icon: Icons.notifications_active_rounded,
           title: 'Alertas',
           subtitle: '2 alertas ativos na sua região',
@@ -455,8 +552,8 @@ class _FireMonitoringSection extends StatelessWidget {
           bgColor: AppColors.redLight,
           riskValue: 0.72,
         ),
-        const SizedBox(height: 12),
-        const FireMonitoringCard(
+        SizedBox(height: 12),
+        FireMonitoringCard(
           icon: Icons.satellite_alt_rounded,
           title: 'Dados NASA',
           subtitle: 'Atualizado há 15 minutos',
