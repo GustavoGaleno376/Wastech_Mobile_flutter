@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'app_theme.dart';
 import 'section_title_widget.dart';
 import 'hero_banner_widget.dart';
@@ -10,6 +11,7 @@ import 'fire_monitoring_card.dart';
 import '../fire/fire_home_screen.dart';
 import '../screens/mapa_screen.dart';
 import '../screens/ferramentas_screen.dart';
+import '../helpers/snackbar_helper.dart';
 import 'plant_service.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -70,7 +72,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _confirmLogout() async {
-    showDialog(
+    final loggedOut = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -79,19 +81,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               Icon(Icons.logout_rounded, color: AppColors.red, size: 24),
               const SizedBox(width: 10),
-              const Text('Confirmar Saída'),
+              const Text('Sair da Conta'),
             ],
           ),
-          content: const Text('Modo offline/desenvolvimento ativo.'),
+          content: const Text('Tem certeza que deseja sair? Você precisará fazer login novamente.'),
           actions: <Widget>[
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text('Fechar', style: TextStyle(color: AppColors.textSecondary)),
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text('Cancelar', style: TextStyle(color: AppColors.textSecondary)),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: FilledButton.styleFrom(backgroundColor: AppColors.red),
+              child: const Text('Sair'),
             ),
           ],
         );
       },
     );
+
+    if (loggedOut == true) {
+      await FirebaseAuth.instance.signOut();
+    }
   }
 
   Widget _logoutAction() {
@@ -180,18 +191,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildBody() {
-    switch (_currentIndex) {
-      case 1:
-        return const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20),
-          child: MapaScreen(),
-        );
-      case 2:
-        return const FerramentasScreen();
-      case 3:
-        return const FireHomeScreen();
-      default:
-        return const SingleChildScrollView(
+    return IndexedStack(
+      index: _currentIndex,
+      children: [
+        const SingleChildScrollView(
           padding: EdgeInsets.symmetric(horizontal: 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -210,8 +213,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
               SizedBox(height: 24),
             ],
           ),
-        );
-    }
+        ),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          child: MapaScreen(),
+        ),
+        const FerramentasScreen(),
+        const FireHomeScreen(),
+      ],
+    );
   }
 }
 
@@ -220,7 +230,7 @@ class _GreetingSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const String name = 'Desenvolvedor';
+    final name = FirebaseAuth.instance.currentUser?.displayName ?? 'Agricultor';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -319,78 +329,195 @@ class _PlantsSection extends StatefulWidget {
 
 class _PlantsSectionState extends State<_PlantsSection> {
   final PlantService _plantService = PlantService();
-  
+
   final TextEditingController _nomeController = TextEditingController();
   final TextEditingController _tipoController = TextEditingController();
 
-  void _abrirFormularioPlanta({Planta? plantaExistente}) {
-    if (plantaExistente != null) {
-      _nomeController.text = plantaExistente.nome;
-      _tipoController.text = plantaExistente.tipo;
-    } else {
-      _nomeController.clear();
-      _tipoController.clear();
+  List<Planta> _plantas = [];
+  bool _isLoading = true;
+  String? _erro;
+
+  @override
+  void initState() {
+    super.initState();
+    _carregarPlantas();
+  }
+
+  @override
+  void dispose() {
+    _nomeController.dispose();
+    _tipoController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _carregarPlantas({bool isSilent = false}) async {
+    if (!isSilent) {
+      setState(() {
+        _isLoading = true;
+        _erro = null;
+      });
     }
+
+    try {
+      final plantas = await _plantService.obterPlantas();
+      if (mounted) {
+        setState(() {
+          _plantas = plantas;
+          _isLoading = false;
+          _erro = _plantas.isEmpty ? _erro : null;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          if (!isSilent || _plantas.isEmpty) {
+            _erro = '$e';
+          }
+        });
+      }
+    }
+  }
+
+  Future<void> _salvarPlanta({Planta? plantaExistente}) async {
+    if (_nomeController.text.trim().isEmpty) return;
+
+    final nome = _nomeController.text;
+    final tipo = _tipoController.text.isEmpty ? 'Geral' : _tipoController.text;
+
+    try {
+      if (plantaExistente == null) {
+        final docId = await _plantService.adicionarPlanta(nome, tipo);
+        if (mounted) {
+          setState(() {
+            _plantas.add(Planta(id: docId, nome: nome, tipo: tipo));
+            _erro = null;
+          });
+          context.showSuccessSnackbar('Planta adicionada com sucesso!');
+          Navigator.pop(context);
+          _carregarPlantas(isSilent: true);
+        }
+      } else {
+        await _plantService.editarPlanta(plantaExistente.id, nome, tipo);
+        if (mounted) {
+          setState(() {
+            final i = _plantas.indexWhere((p) => p.id == plantaExistente.id);
+            if (i != -1) {
+              _plantas[i] = Planta(id: plantaExistente.id, nome: nome, tipo: tipo);
+            }
+            _erro = null;
+          });
+          context.showSuccessSnackbar('Planta atualizada com sucesso!');
+          Navigator.pop(context);
+          _carregarPlantas(isSilent: true);
+        }
+      }
+    } catch (e) {
+      if (mounted) context.showErrorSnackbar('Erro ao salvar: $e');
+    }
+  }
+
+  void _abrirFormularioPlanta({Planta? plantaExistente}) {
+    _nomeController.text = plantaExistente?.nome ?? '';
+    _tipoController.text = plantaExistente?.tipo ?? '';
 
     showDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text(plantaExistente == null ? '🌿 Adicionar Nova Planta' : '✏️ Editar Planta'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: _nomeController,
-                decoration: const InputDecoration(labelText: 'Nome da Planta', hintText: 'Ex: Café'),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: _tipoController,
-                decoration: const InputDecoration(labelText: 'Tipo / Categoria', hintText: 'Ex: Perene'),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancelar'),
-            ),
-            FilledButton(
-              onPressed: () async {
-                if (_nomeController.text.trim().isEmpty) return;
-                
-                if (plantaExistente == null) {
-                  await _plantService.adicionarPlanta(
-                    _nomeController.text,
-                    _tipoController.text.isEmpty ? 'Geral' : _tipoController.text,
-                  );
-                } else {
-                  await _plantService.editarPlanta(
-                    plantaExistente.id,
-                    _nomeController.text,
-                    _tipoController.text,
-                  );
-                }
+      builder: (ctx) {
+        var isSaving = false;
 
-                if (mounted) {
-                  setState(() {});
-                  Navigator.pop(context);
-                }
-              },
-              style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
-              child: const Text('Salvar'),
-            )
-          ],
+        return StatefulBuilder(
+          builder: (ctx, setDialogState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              title: Text(plantaExistente == null ? 'Adicionar Nova Planta' : 'Editar Planta'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: _nomeController,
+                    textCapitalization: TextCapitalization.sentences,
+                    decoration: const InputDecoration(
+                      labelText: 'Nome da Planta',
+                      hintText: 'Ex: Café',
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _tipoController,
+                    textCapitalization: TextCapitalization.sentences,
+                    decoration: const InputDecoration(
+                      labelText: 'Tipo / Categoria',
+                      hintText: 'Ex: Perene',
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: isSaving ? null : () => Navigator.pop(ctx),
+                  child: const Text('Cancelar'),
+                ),
+                FilledButton(
+                  onPressed: isSaving
+                      ? null
+                      : () async {
+                          if (_nomeController.text.trim().isEmpty) return;
+                          setDialogState(() => isSaving = true);
+                          await _salvarPlanta(plantaExistente: plantaExistente);
+                        },
+                  style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
+                  child: isSaving
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                        )
+                      : const Text('Salvar'),
+                ),
+              ],
+            );
+          },
         );
       },
     );
   }
 
-  void _removerPlanta(String id) async {
-    await _plantService.removerPlanta(id);
-    setState(() {});
+  Future<void> _removerPlanta(Planta planta) async {
+    final confirmado = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Remover Planta'),
+        content: Text('Tem certeza que deseja remover "${planta.nome}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: FilledButton.styleFrom(backgroundColor: AppColors.red),
+            child: const Text('Remover'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmado != true) return;
+
+    try {
+      await _plantService.removerPlanta(planta.id);
+      if (mounted) {
+        setState(() {
+          _plantas.removeWhere((p) => p.id == planta.id);
+        });
+        context.showSuccessSnackbar('Planta removida com sucesso!');
+        _carregarPlantas(isSilent: true);
+      }
+    } catch (e) {
+      if (mounted) context.showErrorSnackbar('Erro ao remover: $e');
+    }
   }
 
   @override
@@ -400,80 +527,76 @@ class _PlantsSectionState extends State<_PlantsSection> {
       children: [
         const SectionTitleWidget(title: 'Minhas Plantas'),
         const SizedBox(height: 8),
-        
-        FutureBuilder<List<Planta>>(
-          future: _plantService.obterPlantas(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: CircularProgressIndicator(color: AppColors.primary),
-                ),
-              );
-            }
 
-            final plantas = snapshot.data ?? [];
-
-            if (plantas.isEmpty) {
-              return Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.grey[100],
+        if (_isLoading)
+          const Center(
+            child: Padding(
+              padding: EdgeInsets.all(16.0),
+              child: CircularProgressIndicator(color: AppColors.primary),
+            ),
+          )
+        else if (_erro != null)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: AppColors.redLight,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              'Erro ao carregar plantas: $_erro',
+              style: TextStyle(color: AppColors.red, fontSize: 13),
+            ),
+          )
+        else if (_plantas.isEmpty)
+          PlantCardWidget(
+            showEmptyState: true,
+            onAdd: () => _abrirFormularioPlanta(),
+          )
+        else ...[
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: _plantas.length,
+            itemBuilder: (context, index) {
+              final planta = _plantas[index];
+              return Card(
+                elevation: 0,
+                margin: const EdgeInsets.only(bottom: 8),
+                shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
                 ),
-                child: const Center(
-                  child: Text(
-                    'Nenhuma planta cadastrada. Adicione sua primeira!', 
-                    style: TextStyle(color: Colors.grey, fontSize: 13),
+                child: ListTile(
+                  leading: const CircleAvatar(
+                    backgroundColor: AppColors.greenLight,
+                    child: Icon(Icons.eco_rounded, color: AppColors.primary),
+                  ),
+                  title: Text(planta.nome, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  subtitle: Text(planta.tipo),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit_outlined, color: Colors.blue),
+                        onPressed: () => _abrirFormularioPlanta(plantaExistente: planta),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete_outline_rounded, color: AppColors.red),
+                        onPressed: () => _removerPlanta(planta),
+                      ),
+                    ],
                   ),
                 ),
               );
-            }
-
-            return ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: plantas.length,
-              itemBuilder: (context, index) {
-                final planta = plantas[index];
-                return Card(
-                  elevation: 0,
-                  margin: const EdgeInsets.only(bottom: 8),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(color: Colors.grey.withOpacity(0.2)),
-                  ),
-                  child: ListTile(
-                    leading: const CircleAvatar(
-                      backgroundColor: AppColors.greenLight,
-                      child: Icon(Icons.eco_rounded, color: AppColors.primary),
-                    ),
-                    title: Text(planta.nome, style: const TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: Text(planta.tipo),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.edit_outlined, color: Colors.blue),
-                          onPressed: () => _abrirFormularioPlanta(plantaExistente: planta),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete_outline_rounded, color: AppColors.red),
-                          onPressed: () => _removerPlanta(planta.id),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            );
-          },
-        ),
-          
-        const SizedBox(height: 12),
-        PlantCardWidget(onAdd: () => _abrirFormularioPlanta()),
+            },
+          ),
+          const SizedBox(height: 12),
+          PlantCardWidget(
+            showEmptyState: false,
+            onAdd: () => _abrirFormularioPlanta(),
+          ),
+        ],
       ],
     );
   }

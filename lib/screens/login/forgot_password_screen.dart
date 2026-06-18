@@ -18,6 +18,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _emailFocusNode = FocusNode();
   bool _isLoading = false;
   bool _emailSent = false;
+  bool _wasSubmitted = false;
+
+  AutovalidateMode get _autovalidateMode =>
+      _wasSubmitted ? AutovalidateMode.onUserInteraction : AutovalidateMode.disabled;
 
   @override
   void dispose() {
@@ -27,7 +31,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 
   Future<void> _handleReset() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      setState(() => _wasSubmitted = true);
+      return;
+    }
 
     FocusScope.of(context).unfocus();
     setState(() => _isLoading = true);
@@ -52,7 +59,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         padding: const EdgeInsets.all(24.0),
         child: Form(
           key: _formKey,
-          autovalidateMode: AutovalidateMode.onUserInteraction,
+          autovalidateMode: _autovalidateMode,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [

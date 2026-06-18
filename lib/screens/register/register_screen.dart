@@ -26,6 +26,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   bool _isLoading = false;
+  bool _wasSubmitted = false;
+
+  AutovalidateMode get _autovalidateMode =>
+      _wasSubmitted ? AutovalidateMode.onUserInteraction : AutovalidateMode.disabled;
 
   @override
   void dispose() {
@@ -41,7 +45,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _handleRegister() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      setState(() => _wasSubmitted = true);
+      return;
+    }
 
     FocusScope.of(context).unfocus();
     setState(() => _isLoading = true);
@@ -54,7 +61,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
       if (!mounted) return;
       context.showSuccessSnackbar('Conta criada com sucesso!');
-      Navigator.pop(context);
+      if (mounted) {
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      }
     } catch (e) {
       if (!mounted) return;
       context.showErrorSnackbar('$e');
@@ -71,7 +80,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Form(
             key: _formKey,
-            autovalidateMode: AutovalidateMode.onUserInteraction,
+            autovalidateMode: _autovalidateMode,
             child: Column(
               children: [
                 const SizedBox(height: 40),

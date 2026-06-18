@@ -23,6 +23,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool _obscurePassword = true;
   bool _isLoading = false;
+  bool _wasSubmitted = false;
+
+  AutovalidateMode get _autovalidateMode =>
+      _wasSubmitted ? AutovalidateMode.onUserInteraction : AutovalidateMode.disabled;
 
   @override
   void dispose() {
@@ -34,7 +38,10 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleLogin() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      setState(() => _wasSubmitted = true);
+      return;
+    }
 
     FocusScope.of(context).unfocus();
     setState(() => _isLoading = true);
@@ -60,7 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Form(
             key: _formKey,
-            autovalidateMode: AutovalidateMode.onUserInteraction,
+            autovalidateMode: _autovalidateMode,
             child: Column(
               children: [
                 const SizedBox(height: 60),
